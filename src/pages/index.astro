@@ -1,0 +1,16 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Card from '../components/Card.astro';
+import {getCollection} from 'astro:content';
+const all=(await getCollection('articles',({data})=>!data.draft)).sort((a,b)=>b.data.date.valueOf()-a.data.date.valueOf());
+const lead=all.find(a=>a.data.featured)||all[0];
+const rest=all.filter(a=>a.id!==lead.id);
+---
+<Layout><div class="edition"><span>REVISTA DE DIVULGAÇÃO CIENTÍFICA</span><span class="edition-right"><i></i> Para entender o presente. Imaginar o futuro.</span></div>
+<section class="lead-grid" aria-label="Destaques"><article class="lead"><a class="lead-image" href={'/materias/'+lead.id+'/'}><img src={lead.data.image} alt={lead.data.imageAlt} width="1400" height="900" fetchpriority="high"/><span class="photo-label">EM FOCO / {lead.data.category.toUpperCase()}</span></a><div class="lead-copy"><span class="eyebrow">{lead.data.category} <span class="tag-divider">/</span> Especial</span><h1><a href={'/materias/'+lead.id+'/'}>{lead.data.title}</a></h1><p>{lead.data.description}</p><a class="read-link" href={'/materias/'+lead.id+'/'}>Leia a matéria <span>↗</span></a></div></article>
+<aside class="side-stories"><div class="section-kicker">NO RADAR <span>↗</span></div>{rest.slice(0,2).map(a=><Card article={a} compact/>)}</aside></section>
+<section class="latest"><div class="section-heading"><h2>O conhecimento não para.</h2><a href="/materias/">Todas as matérias <span>↗</span></a></div><div class="latest-grid">{rest.slice(2,5).map(a=><Card article={a}/>)}</div></section>
+<section class="manifesto"><span class="eyebrow">A CURIOSIDADE NOS MOVE</span><h2>O mundo faz perguntas.<br/><em>A ciência abre caminhos.</em></h2><div><p>Entre descobertas e grandes questões, um espaço para olhar mais de perto, conectar ideias e entender o que transforma a nossa vida.</p><a href="/sobre/" class="read-link">Conheça a Ecosesi <span>↗</span></a></div><span class="orbit" aria-hidden="true">✳</span></section>
+<section class="topics"><div class="section-heading"><h2>Explore por assunto</h2><span>UM UNIVERSO DE POSSIBILIDADES</span></div><div class="topic-grid">{['Meio ambiente','Ciência','Tecnologia','Saúde','Universo'].map((c,i)=><a href={'/materias/?editoria='+encodeURIComponent(c)}><span>0{i+1}</span><h3>{c}</h3><b>↗</b></a>)}</div></section>
+<p class="demo-note">Edição de demonstração · Os textos ilustram a estrutura editorial do site.</p>
+</Layout>

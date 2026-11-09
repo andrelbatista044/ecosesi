@@ -1,0 +1,6 @@
+---
+const {article,compact=false}=Astro.props;
+const a=article.data;
+const date=a.date.toLocaleDateString('pt-BR',{day:'2-digit',month:'short',timeZone:'UTC'}).replace('.','');
+---
+<article class:list={['article-card',{compact}]}><a class="image-link" href={'/materias/'+article.id+'/'} tabindex="-1" aria-hidden="true"><img src={a.image} alt={a.imageAlt} loading="lazy" width="800" height="520"/></a><div class="card-copy"><span class="eyebrow">{a.category}</span><h3><a href={'/materias/'+article.id+'/'}>{a.title}</a></h3>{!compact&&<p>{a.description}</p>}<span class="meta">{date} <span>·</span> {Math.max(2,Math.ceil(article.body.split(/\s+/).length/200))} min de leitura</span></div></article>

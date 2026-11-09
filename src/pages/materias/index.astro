@@ -1,0 +1,16 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Card from '../../components/Card.astro';
+import {getCollection} from 'astro:content';
+const articles=(await getCollection('articles',({data})=>!data.draft)).sort((a,b)=>b.data.date.valueOf()-a.data.date.valueOf());
+---
+<Layout title="Matérias | Ecosesi"><section class="archive"><span class="eyebrow">EXPLORE A ECOSESI</span><h1>Para cada pergunta,<br/><em>uma nova descoberta.</em></h1><div class="filter-panel" id="busca"><label for="search">O que desperta sua curiosidade?</label><input id="search" type="search" placeholder="Busque por um tema, título ou palavra…"/><div class="filters" role="group" aria-label="Filtrar por editoria">{['Todas','Meio ambiente','Ciência','Tecnologia','Saúde','Universo'].map(c=><button data-category={c} aria-pressed={c==='Todas'}>{c}</button>)}</div></div><div class="results-top"><h2 id="result-heading">Todas as matérias</h2><span id="count" aria-live="polite">{articles.length} matérias</span></div><div class="archive-grid">{articles.map(a=><div data-article data-category={a.data.category} data-search={[a.data.title,a.data.description,a.data.category].join(' ')}><Card article={a}/></div>)}</div><p id="empty" hidden>Nenhuma matéria encontrada. Experimente outro termo ou editoria.</p></section></Layout>
+<script>
+const input=document.querySelector<HTMLInputElement>('#search')!;
+const buttons=[...document.querySelectorAll<HTMLButtonElement>('button[data-category]')];
+let selected='Todas';
+const normalize=(s:string)=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+function filter(){let count=0;document.querySelectorAll<HTMLElement>('[data-article]').forEach(el=>{const show=(selected==='Todas'||el.dataset.category===selected)&&normalize(el.dataset.search||'').includes(normalize(input.value));el.hidden=!show;if(show)count++;});buttons.forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.category===selected)));document.querySelector('#count')!.textContent=`${count} ${count===1?'matéria':'matérias'}`;document.querySelector('#result-heading')!.textContent=selected==='Todas'?'Todas as matérias':selected;document.querySelector<HTMLElement>('#empty')!.hidden=count>0;}
+const initial=new URLSearchParams(location.search).get('editoria');if(buttons.some(b=>b.dataset.category===initial))selected=initial!;
+buttons.forEach(b=>b.addEventListener('click',()=>{selected=b.dataset.category!;const u=new URL(location.href);if(selected==='Todas')u.searchParams.delete('editoria');else u.searchParams.set('editoria',selected);history.replaceState({},'',u);filter();}));input.addEventListener('input',filter);filter();
+</script>
